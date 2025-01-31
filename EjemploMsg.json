@@ -1,0 +1,38 @@
+{
+    "usuario": "",
+    "clave": "",
+    "nombrepaciente": "JUAN PEREZ",
+    "tipodocumento": "CC",
+    "numerodocumento": "2225633",
+    "PatientDOB": "12-03-1990",
+    "PatientSex": "M",
+    "OrderID": "01027012500552BG",
+    "resultados": [
+        {
+            "idexterno": "01027012500552",
+            "idestudio": "802",
+            "fechavalidacion": "21/02/2023 14:19:09",
+            "codigodeterminacion": "269",
+            "determinaciondescripcion": "HTSH",
+            "resultado": "15.00",
+            "unidad": "μU/ml",
+            "observacionresultado": "OBSERVACION TSH",
+            "informerango": "",
+            "rangonormal": "0-0 μU/ml",
+            "usuariovalido": "ADMINISTRADOR"
+        },
+        {
+            "idexterno": "01027012500552",
+            "idestudio": "802",
+            "fechavalidacion": "21/02/2023 14:19:09",
+            "codigodeterminacion": "270",
+            "determinaciondescripcion": "COLESTEROL DE ALTA",
+            "resultado": "250.00",
+            "unidad": "μU/ml",
+            "observacionresultado": "OBSERVACION COLES",
+            "informerango": "",
+            "rangonormal": "0-200 μU/ml",
+            "usuariovalido": "ADMINISTRADOR"
+        }
+    ]
+}
