@@ -1,78 +1,90 @@
-// Convert input string to JSON object
+// Convert the input message to a JSON string
 var inputData = JSON.stringify(msg);
 
-// Initialize output object structure
+// Initialize the output object structure
 var outputObj = {};
 
-// Set header
-outputObj.caseId = msg['OrderID'];
-outputObj.site = "CPO-CDS";
+// Set the header information
+outputObj.caseId = msg['OrderID']; // Assign the OrderID from the input message
+outputObj.site = "CPO-CDS"; // Set a static site value
 
-// Array to contain Episodes
-var episodeArray = new Array();
+// Array to contain episode objects
+var episodeArray = [];
 
-// Create episode object
+// Create an episode object
 var episodeObject = {};
 
-// Episode Data and ID
-episodeObject.episodeDate = "1738351672000";
-episodeObject.episodeId = msg['OrderID'];
+// --------------------------- Episode Date and ID ------------------------------ //
+// Import Java classes for date formatting
+var SimpleDateFormat = java.text.SimpleDateFormat;
+var TimeZone = java.util.TimeZone;
 
-// Attributes Definition
-var attributeArr = new Array();
+// Create a date formatter for UTC timezone
+var sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+// Get the current date and format it
+var dateObj = DateUtil.getCurrentDate("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+var dateFormated = sdf.parse(dateObj);
+var milliseconds = dateFormated.getTime(); // Convert to milliseconds
+
+// Set episode date and ID
+episodeObject.episodeDate = milliseconds; // Assign the formatted date in milliseconds
+episodeObject.episodeId = msg['OrderID']; // Assign the OrderID as the episode ID
+
+// --------------------------- Attributes Definitions ------------------------------ //
+var attributeArr = []; // Array to hold attribute objects
 
 // Primary Attributes - PID
-var attributeObjectgeneral = {};
-attributeObjectgeneral.externalName="PID" 
-attributeObjectgeneral.value = msg['tipodocumento'] + msg['numerodocumento'];
-attributeArr.push(attributeObjectgeneral);
+var attributeObjectPID = {};
+attributeObjectPID.externalName = "PID";
+attributeObjectPID.value = msg['tipodocumento'] + msg['numerodocumento']; // Combine document type and number
+attributeArr.push(attributeObjectPID);
 
-// Primary Attributes - Nombre Paciente
-var attributeObjectgeneral = {};
-attributeObjectgeneral.externalName="NombrePaciente" 
-attributeObjectgeneral.value = msg['nombrepaciente'];
-attributeArr.push(attributeObjectgeneral);
+// Primary Attributes - Patient Name
+var attributeObjectName = {};
+attributeObjectName.externalName = "NombrePaciente";
+attributeObjectName.value = msg['nombrepaciente']; // Assign patient name
+attributeArr.push(attributeObjectName);
 
-// Primary Attributes - DOB Paciente
-var attributeObjectgeneral = {};
-attributeObjectgeneral.externalName="PatientDOB" 
-attributeObjectgeneral.value = msg['PatientDOB'];
-attributeArr.push(attributeObjectgeneral);
+// Primary Attributes - Patient Date of Birth
+var attributeObjectDOB = {};
+attributeObjectDOB.externalName = "PatientDOB";
+attributeObjectDOB.value = msg['PatientDOB']; // Assign patient date of birth
+attributeArr.push(attributeObjectDOB);
 
-// Primary Attributes - Sexo Paciente
-var attributeObjectgeneral = {};
-attributeObjectgeneral.externalName="PatientSex" 
-attributeObjectgeneral.value = msg['PatientSex'];
-attributeArr.push(attributeObjectgeneral);
+// Primary Attributes - Patient Sex
+var attributeObjectSex = {};
+attributeObjectSex.externalName = "PatientSex";
+attributeObjectSex.value = msg['PatientSex']; // Assign patient sex
+attributeArr.push(attributeObjectSex);
 
 // Primary Attributes - OrderID
-var attributeObjectgeneral = {};
-attributeObjectgeneral.externalName="OrderID" 
-attributeObjectgeneral.value = msg['OrderID'];
-attributeArr.push(attributeObjectgeneral);
+var attributeObjectOrderID = {};
+attributeObjectOrderID.externalName = "OrderID";
+attributeObjectOrderID.value = msg['OrderID']; // Assign OrderID
+attributeArr.push(attributeObjectOrderID);
 
-// ---------------------------Load Results------------------------------ //
-
-var z = 0;
+// --------------------------- Load Results ------------------------------ //
+var z = 0; // Initialize counter for results loop
 for each (resultados in msg['resultados']) {
     var attributeObject = {};
-    attributeObject.externalName = msg['resultados'][z]['determinaciondescripcion'];
-    attributeObject.value = msg['resultados'][z]['resultado'];
-    attributeObject.units = msg['resultados'][z]['unidad'];
-    attributeObject.range = msg['resultados'][z]['rangonormal'];
-    attributeArr.push(attributeObject);
-    z++;
+    attributeObject.externalName = msg['resultados'][z]['determinaciondescripcion']; // Assign test description
+    attributeObject.value = msg['resultados'][z]['resultado']; // Assign test result
+    attributeObject.units = msg['resultados'][z]['unidad']; // Assign units
+    attributeObject.range = msg['resultados'][z]['rangonormal']; // Assign normal range
+    attributeArr.push(attributeObject); // Add to attributes array
+    z++; // Increment counter
 }
+// --------------------------- End Load Results ------------------------------ //
 
-// ---------------------------End Load Results-------------------------- //
-
-// Load attributes to episode
+// Load attributes into the episode object
 episodeObject.attributeWithValues = attributeArr;
-episodeArray.push(episodeObject);
-outputObj.episodes = episodeArray;
+episodeArray.push(episodeObject); // Add episode to the episodes array
+outputObj.episodes = episodeArray; // Assign episodes array to the output object
 
-// Set sender reference
-outputObj.senderReference = UUIDGenerator.getUUID();//JSON.stringify(aux_message);
+// Set sender reference using a UUID generator
+outputObj.senderReference = UUIDGenerator.getUUID();
 
-// Output Message from Source transformer
+// Convert the output object to a JSON string and assign it to the message
 msg = JSON.stringify(outputObj);
