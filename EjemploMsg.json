@@ -1,38 +1,37 @@
 {
-    "usuario": "",
-    "clave": "",
-    "nombrepaciente": "JUAN PEREZ",
-    "tipodocumento": "CC",
-    "numerodocumento": "2225633",
-    "PatientDOB": "12-03-1990",
-    "PatientSex": "M",
-    "OrderID": "01027012500552BG",
-    "resultados": [
-        {
-            "idexterno": "01027012500552",
-            "idestudio": "802",
-            "fechavalidacion": "21/02/2023 14:19:09",
-            "codigodeterminacion": "269",
-            "determinaciondescripcion": "HTSH",
-            "resultado": "15.00",
-            "unidad": "μU/ml",
-            "observacionresultado": "OBSERVACION TSH",
-            "informerango": "",
-            "rangonormal": "0-0 μU/ml",
-            "usuariovalido": "ADMINISTRADOR"
-        },
-        {
-            "idexterno": "01027012500552",
-            "idestudio": "802",
-            "fechavalidacion": "21/02/2023 14:19:09",
-            "codigodeterminacion": "270",
-            "determinaciondescripcion": "COLESTEROL DE ALTA",
-            "resultado": "250.00",
-            "unidad": "μU/ml",
-            "observacionresultado": "OBSERVACION COLES",
-            "informerango": "",
-            "rangonormal": "0-200 μU/ml",
-            "usuariovalido": "ADMINISTRADOR"
-        }
-    ]
+  "usuario" : "",
+  "clave" : "",
+  "nombrepaciente" : "MARIA ANGEL BELTRAN ARAGONES",
+  "tipodocumento" : "RC",
+  "numerodocumento" : "1074138474",
+  "PatientDOB" : "18/12/2024 05:00:00",
+  "PatientSex" : "F",
+  "ordenID" : "37-736032",
+  "ordennumero" : "554048",
+  "resultados" : [
+    {
+      "idexterno" : "906913",
+      "idestudio" : "906913",
+      "fechavalidacion" : "03/02/2025 12:08:31",
+      "codigodeterminacion" : "1813",
+      "determinaciondescripcion" : "PROTEINA C REACTIVA PCR",
+      "resultado" : "NEGATIVO",
+      "unidad" : "mg/dL",
+      "observacionresultado" : "",
+      "informerango" : "",
+      "usuariovalido" : "ADAVID"
+    },
+    {
+      "idexterno" : "906913",
+      "idestudio" : "906913",
+      "fechavalidacion" : "04/02/2025 10:08:31",
+      "codigodeterminacion" : "1813",
+      "determinaciondescripcion" : "PROTEINA C REACTIVA PCR",
+      "resultado" : "< 2.15",
+      "unidad" : "mg/dL",
+      "observacionresultado" : "",
+      "informerango" : "",
+      "usuariovalido" : "ADAVID"
+    }
+  ]
 }
