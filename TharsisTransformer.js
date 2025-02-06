@@ -1,90 +1,111 @@
-// Convert the input message to a JSON string
+// Convert input string to JSON object
 var inputData = JSON.stringify(msg);
 
-// Initialize the output object structure
+// Initialize output object structure
 var outputObj = {};
 
-// Set the header information
-outputObj.caseId = msg['OrderID']; // Assign the OrderID from the input message
-outputObj.site = "CPO-CDS"; // Set a static site value
+// Set header
+outputObj.caseId = msg['ordenID'].replace(/-/g,'');
+outputObj.site = "";
 
-// Array to contain episode objects
+// Array to contain Episodes
 var episodeArray = [];
 
-// Create an episode object
-var episodeObject = {};
-
-// --------------------------- Episode Date and ID ------------------------------ //
-// Import Java classes for date formatting
+// ---------------------------Episode Date and ID------------------------------ //
+//** Import Java classes
 var SimpleDateFormat = java.text.SimpleDateFormat;
 var TimeZone = java.util.TimeZone;
-
-// Create a date formatter for UTC timezone
-var sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+var sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-// Get the current date and format it
-var dateObj = DateUtil.getCurrentDate("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-var dateFormated = sdf.parse(dateObj);
-var milliseconds = dateFormated.getTime(); // Convert to milliseconds
+// ---------------------------Group resultados by fechavalidacion------------------------------ //
+var resultadosByDate = {};
 
-// Set episode date and ID
-episodeObject.episodeDate = milliseconds; // Assign the formatted date in milliseconds
-episodeObject.episodeId = msg['OrderID']; // Assign the OrderID as the episode ID
-
-// --------------------------- Attributes Definitions ------------------------------ //
-var attributeArr = []; // Array to hold attribute objects
-
-// Primary Attributes - PID
-var attributeObjectPID = {};
-attributeObjectPID.externalName = "PID";
-attributeObjectPID.value = msg['tipodocumento'] + msg['numerodocumento']; // Combine document type and number
-attributeArr.push(attributeObjectPID);
-
-// Primary Attributes - Patient Name
-var attributeObjectName = {};
-attributeObjectName.externalName = "NombrePaciente";
-attributeObjectName.value = msg['nombrepaciente']; // Assign patient name
-attributeArr.push(attributeObjectName);
-
-// Primary Attributes - Patient Date of Birth
-var attributeObjectDOB = {};
-attributeObjectDOB.externalName = "PatientDOB";
-attributeObjectDOB.value = msg['PatientDOB']; // Assign patient date of birth
-attributeArr.push(attributeObjectDOB);
-
-// Primary Attributes - Patient Sex
-var attributeObjectSex = {};
-attributeObjectSex.externalName = "PatientSex";
-attributeObjectSex.value = msg['PatientSex']; // Assign patient sex
-attributeArr.push(attributeObjectSex);
-
-// Primary Attributes - OrderID
-var attributeObjectOrderID = {};
-attributeObjectOrderID.externalName = "OrderID";
-attributeObjectOrderID.value = msg['OrderID']; // Assign OrderID
-attributeArr.push(attributeObjectOrderID);
-
-// --------------------------- Load Results ------------------------------ //
-var z = 0; // Initialize counter for results loop
 for each (resultados in msg['resultados']) {
-    var attributeObject = {};
-    attributeObject.externalName = msg['resultados'][z]['determinaciondescripcion']; // Assign test description
-    attributeObject.value = msg['resultados'][z]['resultado']; // Assign test result
-    attributeObject.units = msg['resultados'][z]['unidad']; // Assign units
-    attributeObject.range = msg['resultados'][z]['rangonormal']; // Assign normal range
-    attributeArr.push(attributeObject); // Add to attributes array
-    z++; // Increment counter
+    var fechaValidacion = resultados['fechavalidacion'];
+    if (!resultadosByDate[fechaValidacion]) {
+        resultadosByDate[fechaValidacion] = [];
+    }
+    resultadosByDate[fechaValidacion].push(resultados);
 }
-// --------------------------- End Load Results ------------------------------ //
 
-// Load attributes into the episode object
-episodeObject.attributeWithValues = attributeArr;
-episodeArray.push(episodeObject); // Add episode to the episodes array
-outputObj.episodes = episodeArray; // Assign episodes array to the output object
+// Create an episode for each fechavalidacion
+for (var fechaValidacion in resultadosByDate) {
+    if (resultadosByDate.hasOwnProperty(fechaValidacion)) {
+        // Create episode object
+        var episodeObject = {};
 
-// Set sender reference using a UUID generator
+        // Parse fechaValidacion to a Date object
+        var dateObj;
+        try {
+            dateObj = DateUtil.getDate("dd/MM/yyyy HH:mm:ss", fechaValidacion);
+        } catch (e) {
+            // Handle invalid date format
+            throw new Error("Invalid date format for fechaValidacion: " + fechaValidacion);
+        }
+
+        // Format the date to milliseconds
+        var dateFormated = sdf.parse(dateObj);
+        var milliseconds = dateFormated.getTime();
+
+        episodeObject.episodeDate = milliseconds;
+        episodeObject.episodeId = msg['ordenID'].replace(/-/g, '') + msg['ordennumero'];
+
+        // ---------------------------Attributes Definitions------------------------------ //
+        var attributeArr = [];
+
+        // Primary Attributes - PID
+        var attributeObjectgeneral = {};
+        attributeObjectgeneral.externalName = "PID";
+        attributeObjectgeneral.value = msg['tipodocumento'] + msg['numerodocumento'];
+        attributeArr.push(attributeObjectgeneral);
+
+        // Primary Attributes - Nombre Paciente
+        attributeObjectgeneral = {};
+        attributeObjectgeneral.externalName = "NombrePaciente";
+        attributeObjectgeneral.value = msg['nombrepaciente'];
+        attributeArr.push(attributeObjectgeneral);
+
+        // Primary Attributes - DOB Paciente
+        attributeObjectgeneral = {};
+        attributeObjectgeneral.externalName = "PatientDOB";
+        attributeObjectgeneral.value = msg['PatientDOB'];
+        attributeArr.push(attributeObjectgeneral);
+
+        // Primary Attributes - Sexo Paciente
+        attributeObjectgeneral = {};
+        attributeObjectgeneral.externalName = "PatientSex";
+        attributeObjectgeneral.value = msg['PatientSex'];
+        attributeArr.push(attributeObjectgeneral);
+
+        // Primary Attributes - OrderID
+        attributeObjectgeneral = {};
+        attributeObjectgeneral.externalName = "OrderID";
+        attributeObjectgeneral.value = msg['ordenID'];
+        attributeArr.push(attributeObjectgeneral);
+
+        // ---------------------------Load Results------------------------------ //
+        for each (resultados in resultadosByDate[fechaValidacion]) {
+            var attributeObject = {};
+            attributeObject.externalName = resultados['determinaciondescripcion'];
+            attributeObject.value = resultados['resultado'];
+            attributeObject.units = resultados['unidad'];
+            attributeObject.range = resultados['rangonormal'];
+            attributeArr.push(attributeObject);
+        }
+
+        // ---------------------------End Load Results-------------------------- //
+
+        // Load attributes to episode
+        episodeObject.attributeWithValues = attributeArr;
+        episodeArray.push(episodeObject);
+    }
+}
+
+outputObj.episodes = episodeArray;
+
+// Set sender reference
 outputObj.senderReference = UUIDGenerator.getUUID();
 
-// Convert the output object to a JSON string and assign it to the message
+// Output Message from Source transformer
 msg = JSON.stringify(outputObj);
